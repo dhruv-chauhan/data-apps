@@ -1,6 +1,6 @@
-altair==4.2.0
-pandas==1.4.3
-streamlit==1.10.0
-streamlit-aggrid==0.2.3.post2
-streamlit-autorefresh==0.0.1
-subgrounds==0.2.0
+altair
+pandas
+streamlit
+streamlit-aggrid
+streamlit-autorefresh
+subgrounds
