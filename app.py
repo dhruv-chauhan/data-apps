@@ -78,9 +78,10 @@ with st.container():
         default=['network', 'blockHeight', 'totalSupply', 'gasPrice', 'cumulativeSize', 'cumulativeUniqueAuthors', 'cumulativeRewards', 'cumulativeBurntFees', 'timestamp'])
 
     if 'show_block_data' not in st.session_state:
-        st.session_state.show_block_data = False
+        st.session_state.show_block_data = True
 
-    show_block_data = st.checkbox('Show individual block data in time range')
+    show_block_data = st.checkbox(
+        'Show individual block data in time range', value=True)
     st.session_state.show_block_data = show_block_data
 
     AgGrid(
@@ -92,6 +93,9 @@ with st.container():
     )
 
     if show_block_data:
+        st.markdown('---')
+        st.subheader('Block Data')
+
         block_range = {}
         blockHeight_min = quantitative_df[['network', 'blockHeight']
                                           ].groupby('network').min()
