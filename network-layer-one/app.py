@@ -196,11 +196,15 @@ with st.container():
             ['Bar chart', 'Line chart', 'Area chart']
         )
 
-        if 'with_mean' not in st.session_state:
-            st.session_state.with_mean = True
+        aggregate = st.radio(
+            "Aggregate on",
+            ('none', 'count', 'sum', 'mean', 'median', 'min', 'max'),
+            index=3,
+            horizontal=True
+        )
+        if aggregate == 'none':
+            aggregate = None
 
-        with_mean = st.checkbox('With mean', value=True)
-        st.session_state.with_mean = with_mean
     with col2:
         metric_on_y = st.selectbox(
             'Metric on y-axis',
@@ -216,12 +220,12 @@ with st.container():
 
     if chart_type == "Line chart":
         charts.plot_line(quantitative_df[['network', metric_on_y,
-                                          metric_on_x]], metric_on_y, metric_on_x, with_mean)
+                                          metric_on_x]], metric_on_y, metric_on_x, aggregate)
     elif chart_type == "Bar chart":
         charts.plot_bar(quantitative_df[['network', metric_on_y,
-                                         metric_on_x]], metric_on_y, metric_on_x, with_mean)
+                                         metric_on_x]], metric_on_y, metric_on_x, aggregate)
     elif chart_type == "Area chart":
         charts.plot_area(quantitative_df[['network', metric_on_y,
-                                          metric_on_x]], metric_on_y, metric_on_x, with_mean)
+                                          metric_on_x]], metric_on_y, metric_on_x, aggregate)
 
 st.markdown('---')
