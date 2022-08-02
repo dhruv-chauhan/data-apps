@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from streamlit_autorefresh import st_autorefresh
 from datetime import date, datetime, timedelta
-from st_aggrid import AgGrid
+from st_aggrid import AgGrid, JsCode
 
 import config
 import fetchers
@@ -18,8 +18,56 @@ def set_refresh_interval(frequency):
     st_autorefresh(interval=refresh_interval * 1000)
 
 
+def gen_js_snippet(col_name, show_stats):
+    table_rows = ''
+    for stat in show_stats:
+        table_rows += f'''
+        '<tr>' + 
+            '<td>' + '{stat}' + '</td>' + 
+            '<td>' + col["{stat}"] + '</td>' + 
+        '</tr>' + '''
+
+    return '''
+    function (params) {
+        col = ''' + f"JSON.parse(params.data['{col_name}']);" + '''
+        return (
+        '<table>' + 
+        ''' + table_rows + '''
+        '</table>'
+        );
+    }'''
+
+
+def build_grid_options(show_quantitative_columns, show_stats):
+    columnDefs = []
+
+    for field in config.fields_without_stats:
+        columnDef = {
+            "field": f"{field}"
+        }
+        if field not in show_quantitative_columns:
+            columnDef["hide"] = True
+
+        columnDefs.append(columnDef)
+
+    for field in config.fields_with_stats:
+        columnDef = {
+            "field": f"{field}",
+            "cellRenderer": JsCode(gen_js_snippet(field, show_stats)).js_code,
+        }
+        if field not in show_quantitative_columns:
+            columnDef["hide"] = True
+
+        columnDefs.append(columnDef)
+
+    return {
+        "rowHeight": len(show_stats) * 30 if len(show_stats) > 0 else 30,
+        "columnDefs": columnDefs
+    }
+
+
 st.set_page_config(layout="wide")
-st.title("Blockchain Network Layer Metrics")
+st.title("Network Layer-1 Metrics")
 
 st.markdown('---')
 st.subheader('Schema and Deployments')
@@ -39,7 +87,7 @@ with st.container():
         'Select networks',
         ['Arbitrum One', 'Arweave', 'Aurora', 'Avalanche', 'Boba', 'BSC', 'Celo', 'Clover', 'Cosmos', 'Fantom', 'Fuse',
             'Harmony', 'Mainnet', 'Matic', 'Moonbeam', 'Moonriver', 'Optimism', 'xDai'],
-        ['Cosmos', 'Harmony', 'Optimism'])
+        ['Arweave', 'Boba'])
 
     col1, col2, col3 = st.columns(3)
     with col1:
@@ -71,11 +119,29 @@ with st.container():
         map(lambda x: fetchers.quantitative_data(x, config.deployments[x], frequency, from_unix, to_unix), networks), axis=0
     )
 
-    quantitative_df_columns = list(quantitative_df.columns)
+    quantitative_df_columns = config.fields_with_stats + config.fields_without_stats
     show_quantitative_columns = st.multiselect(
         'Select columns to show',
         quantitative_df_columns,
-        default=['network', 'blockHeight', 'totalSupply', 'gasPrice', 'cumulativeSize', 'cumulativeUniqueAuthors', 'cumulativeRewards', 'cumulativeBurntFees', 'timestamp'])
+        default=['network', 'blockHeight', 'totalSupply', 'gasPrice', 'Size', 'cumulativeUniqueAuthors', 'cumulativeRewards',
+                 'Transactions', 'cumulativeBurntFees', 'timestamp'])
+
+    show_stats = st.multiselect(
+        'Select stats to show',
+        ['count', 'sum', 'mean', 'median', 'max', 'min',
+            'variance', 'upper_quartile', 'lower_quartile'],
+        default=['count', 'mean'])
+
+    AgGrid(
+        quantitative_df[show_quantitative_columns],
+        gridOptions=build_grid_options(show_quantitative_columns, show_stats),
+        data_return_mode="filtered_and_sorted",
+        update_mode="no_update",
+        fit_columns_on_grid_load=True,
+        theme="streamlit",
+        allow_unsafe_jscode=True,
+        height=600,
+    )
 
     if 'show_block_data' not in st.session_state:
         st.session_state.show_block_data = True
@@ -83,14 +149,6 @@ with st.container():
     show_block_data = st.checkbox(
         'Show individual block data in time range', value=True)
     st.session_state.show_block_data = show_block_data
-
-    AgGrid(
-        quantitative_df[show_quantitative_columns],
-        data_return_mode="filtered_and_sorted",
-        update_mode="no_update",
-        fit_columns_on_grid_load=True,
-        theme="streamlit"
-    )
 
     if show_block_data:
         st.markdown('---')
@@ -128,6 +186,9 @@ with st.container():
 st.markdown('---')
 st.subheader('Time Series Charts')
 with st.container():
+    time_series_columns = sorted(list(
+        set(quantitative_df.columns) - set(config.fields_with_stats)))
+
     col1, col2, col3 = st.columns(3)
     with col1:
         chart_type = st.selectbox(
@@ -143,14 +204,14 @@ with st.container():
     with col2:
         metric_on_y = st.selectbox(
             'Metric on y-axis',
-            quantitative_df_columns,
+            time_series_columns,
             index=1
         )
     with col3:
         metric_on_x = st.selectbox(
             'Metric on x-axis',
-            quantitative_df_columns,
-            index=3
+            time_series_columns,
+            index=133
         )
 
     if chart_type == "Line chart":
