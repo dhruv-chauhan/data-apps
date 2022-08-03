@@ -43,7 +43,8 @@ def build_grid_options(show_quantitative_columns, show_stats):
 
     for field in config.fields_without_stats:
         columnDef = {
-            "field": f"{field}"
+            "field": f"{field}",
+            "resizable": True,
         }
         if field not in show_quantitative_columns:
             columnDef["hide"] = True
@@ -54,6 +55,7 @@ def build_grid_options(show_quantitative_columns, show_stats):
         columnDef = {
             "field": f"{field}",
             "cellRenderer": JsCode(gen_js_snippet(field, show_stats)).js_code,
+            "resizable": True,
         }
         if field not in show_quantitative_columns:
             columnDef["hide"] = True
@@ -62,7 +64,10 @@ def build_grid_options(show_quantitative_columns, show_stats):
 
     return {
         "rowHeight": len(show_stats) * 30 if len(show_stats) > 0 else 30,
-        "columnDefs": columnDefs
+        "columnDefs": columnDefs,
+        "defaultColDef": {
+            "filter": True,
+        }
     }
 
 
