@@ -136,17 +136,21 @@ def quantitative_data(network, deployment, frequency, from_unix, to_unix):
     df["network"] = network
     df["timestamp"] = df["timestamp"].apply(
         lambda x: datetime.fromtimestamp(x))
-    # df.astype({
-    #     'blockHeight': 'int',
-    #     'cumulativeUniqueAuthors': 'int',
-    #     'cumulativeDifficulty': 'float',
-    #     'cumulativeGasUsed': 'float',
-    #     'cumulativeBurntFees': 'float',
-    #     'cumulativeRewards': 'float',
-    #     'cumulativeSize': 'float',
-    #     'totalSupply': 'float',
-    #     'gasPrice': 'float'
-    # })
+
+    df = df.fillna(0)
+    df = df.astype({
+        'blockHeight': 'int',
+        'blocks': 'int',
+        'cumulativeUniqueAuthors': 'int',
+        'cumulativeDifficulty': 'float',
+        'cumulativeGasUsed': 'float',
+        'cumulativeBurntFees': 'float',
+        'cumulativeRewards': 'float',
+        'cumulativeSize': 'float',
+        'totalSupply': 'float',
+        'cumulativeTransactions': 'float',
+        'gasPrice': 'float'
+    })
 
     return df
 
@@ -183,18 +187,20 @@ def block_data(network, deployment, block_range):
     df["network"] = network
     df["timestamp"] = df["timestamp"].apply(
         lambda x: datetime.fromtimestamp(x))
-    # df.astype({
-    #     'size': 'float',
-    #     'baseFeePerGas': 'float',
-    #     'difficulty': 'float',
-    #     'gasLimit': 'float',
-    #     'gasUsed': 'float',
-    #     'blockUtilization': 'float',
-    #     'gasPrice': 'float',
-    #     'burntFees': 'float',
-    #     'chunkCount': 'int',
-    #     'transactionCount': 'int',
-    #     'rewards': 'float'
-    # })
+
+    df = df.fillna(0)
+    df = df.astype({
+        'size': 'float',
+        'baseFeePerGas': 'float',
+        'difficulty': 'float',
+        'gasLimit': 'float',
+        'gasUsed': 'float',
+        'blockUtilization': 'float',
+        'gasPrice': 'float',
+        'burntFees': 'float',
+        'chunkCount': 'int',
+        'transactionCount': 'int',
+        'rewards': 'float'
+    })
 
     return df

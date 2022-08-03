@@ -188,6 +188,7 @@ st.subheader('Time Series Charts')
 with st.container():
     time_series_columns = sorted(list(
         set(quantitative_df.columns) - set(config.fields_with_stats)))
+    time_series_columns.remove('network')
 
     col1, col2, col3 = st.columns(3)
     with col1:
@@ -215,7 +216,7 @@ with st.container():
         metric_on_x = st.selectbox(
             'Metric on x-axis',
             time_series_columns,
-            index=133
+            index=132
         )
 
     if chart_type == "Line chart":
