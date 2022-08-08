@@ -28,13 +28,11 @@ def plot_line(data, on_y, on_x, aggregate):
 
 def plot_bar(data, on_y, on_x, aggregate, properties={}):
     bar = alt.Chart(data, title=f"{on_y} vs. {on_x}").mark_bar(
-        cornerRadiusTopLeft=3,
-        cornerRadiusTopRight=3,
         opacity=0.5).encode(
         x=alt.X(on_x, title=on_x),
         y=alt.Y(on_y, title=on_y),
         color='network',
-        tooltip=[on_y, on_x])
+        tooltip=[on_y, on_x]).interactive()
 
     if properties:
         bar = bar.properties(height=properties['height'])
@@ -53,7 +51,7 @@ def plot_area(data, on_y, on_x, aggregate):
         x=alt.X(on_x, title=on_x),
         y=alt.Y(on_y, title=on_y, stack=None),
         color='network',
-        tooltip=[on_y, on_x])
+        tooltip=[on_y, on_x]).interactive()
 
     if aggregate:
         rule = plot_aggregate(aggregate, data, on_y)
@@ -83,7 +81,7 @@ def plot_box(prefix, data):
         alt.Y(f'{prefix}_q1', title=None),
         alt.Y2(f'{prefix}_q3', title=None),
         opacity='count (normalized)'
-    )
+    ).interactive()
 
     tick_mean = alt.Chart(data).mark_tick(
         color='network',

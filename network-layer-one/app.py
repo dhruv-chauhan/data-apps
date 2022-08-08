@@ -96,7 +96,7 @@ with st.container():
     networks = st.multiselect(
         'Select networks',
         config.deployments.keys(),
-        ['Arweave', 'Boba'])
+        ['Arweave'])
 
     col1, col2, col3 = st.columns(3)
     with col1:
@@ -167,9 +167,12 @@ with st.container():
     with st.container():
         st.markdown('##### Metric Stats')
 
+        default_index = config.metrics_with_stats.index(
+            f'Transactions')
         metric = st.selectbox(
             'Select metric',
-            config.metrics_with_stats)
+            config.metrics_with_stats,
+            index=default_index)
 
         prefix = frequency.lower() + metric
         cols = ['network', 'timestamp', f'{prefix}_count', f'{prefix}_sum',
@@ -221,7 +224,7 @@ with st.container():
         with col1:
             chart_type = st.selectbox(
                 'Chart Type',
-                ['Bar chart', 'Line chart', 'Area chart']
+                ['Line chart', 'Bar chart', 'Area chart']
             )
 
             aggregators = ['none', 'count', 'sum',
@@ -237,8 +240,7 @@ with st.container():
                 aggregate = None
 
         with col2:
-            default_index = cols.index(
-                f'{frequency.lower()}Transactions_count')
+            default_index = cols.index('blocks')
             metric_on_y = st.selectbox(
                 'Metric on y-axis',
                 cols,
