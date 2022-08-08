@@ -237,7 +237,8 @@ with st.container():
                 aggregate = None
 
         with col2:
-            default_index = cols.index(f'{frequency}Transactions_count')
+            default_index = cols.index(
+                f'{frequency.lower()}Transactions_count')
             metric_on_y = st.selectbox(
                 'Metric on y-axis',
                 cols,
