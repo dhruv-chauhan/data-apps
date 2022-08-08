@@ -89,6 +89,10 @@ def quantitative_data(network, deployment, frequency, from_unix, to_unix):
                     x[f'daily{metric}_cumulative'] if f'daily{metric}_cumulative' in df.columns else None,
                 ), axis=1
             )
+            df = df.rename({
+                f'daily{metric}_q1': f'daily{metric}_lower_quartile',
+                f'daily{metric}_q3': f'daily{metric}_upper_quartile'
+            }, axis='columns')
             df = df.astype({
                 f'daily{metric}_count': 'int',
                 f'daily{metric}_mean': 'float',
@@ -96,8 +100,8 @@ def quantitative_data(network, deployment, frequency, from_unix, to_unix):
                 f'daily{metric}_min': 'float',
                 f'daily{metric}_sum': 'float',
                 f'daily{metric}_variance': 'float',
-                f'daily{metric}_q1': 'float',
-                f'daily{metric}_q3': 'float'
+                f'daily{metric}_lower_quartile': 'float',
+                f'daily{metric}_upper_quartile': 'float'
             })
         df = df.astype({
             'dailyUniqueAuthors_cumulative': 'int',
@@ -173,7 +177,10 @@ def quantitative_data(network, deployment, frequency, from_unix, to_unix):
                     x[f'hourly{metric}_cumulative'] if f'hourly{metric}_cumulative' in df.columns else None,
                 ), axis=1
             )
-
+            df = df.rename({
+                f'hourly{metric}_q1': f'hourly{metric}_lower_quartile',
+                f'hourly{metric}_q3': f'hourly{metric}_upper_quartile'
+            }, axis='columns')
             df = df.astype({
                 f'hourly{metric}_count': 'int',
                 f'hourly{metric}_mean': 'float',
@@ -181,8 +188,8 @@ def quantitative_data(network, deployment, frequency, from_unix, to_unix):
                 f'hourly{metric}_min': 'float',
                 f'hourly{metric}_sum': 'float',
                 f'hourly{metric}_variance': 'float',
-                f'hourly{metric}_q1': 'float',
-                f'hourly{metric}_q3': 'float'
+                f'hourly{metric}_lower_quartile': 'float',
+                f'hourly{metric}_upper_quartile': 'float'
             })
         df = df.astype({
             'hourlyUniqueAuthors_cumulative': 'int',

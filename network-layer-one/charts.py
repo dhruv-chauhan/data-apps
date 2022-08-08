@@ -78,9 +78,11 @@ def plot_box(prefix, data):
     bar = base.mark_bar(
         size=10
     ).encode(
-        alt.Y(f'{prefix}_q1', title=None),
-        alt.Y2(f'{prefix}_q3', title=None),
-        opacity='count (normalized)'
+        alt.Y(f'{prefix}_lower_quartile', title=None),
+        alt.Y2(f'{prefix}_upper_quartile', title=None),
+        opacity='count (normalized)',
+        tooltip=['network', f'{prefix}_min', f'{prefix}_max',
+                 f'{prefix}_lower_quartile', f'{prefix}_upper_quartile', f'{prefix}_mean', f'{prefix}_count']
     ).interactive()
 
     tick_mean = alt.Chart(data).mark_tick(

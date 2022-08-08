@@ -176,7 +176,7 @@ with st.expander("Metrics"):
         cols = ['network', 'timestamp', f'{prefix}_count', f'{prefix}_sum',
                 f'{prefix}_mean', f'{prefix}_variance',
                 f'{prefix}_max', f'{prefix}_min',
-                f'{prefix}_q1', f'{prefix}_q3']
+                f'{prefix}_lower_quartile', f'{prefix}_upper_quartile']
         if f'{prefix}_cumulative' in quantitative_df.columns:
             cols.append(f'{prefix}_cumulative')
 
