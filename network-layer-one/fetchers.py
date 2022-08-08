@@ -8,17 +8,17 @@ import config
 sg = Subgrounds()
 
 
-def create_stats_obj(count, mean, median, max, min, sum, variance, upper_quartile, lower_quartile):
+def create_stats_obj(count, mean, max, min, sum, variance, upper_quartile, lower_quartile, cumulative=None):
     return json.dumps({
         "count": count,
         "mean": mean,
-        "median": median,
         "max": max,
         "min": min,
         "sum": sum,
         "variance": variance,
         "upper_quartile": upper_quartile,
-        "lower_quartile": lower_quartile
+        "lower_quartile": lower_quartile,
+        "cumulative": cumulative
     })
 
 
@@ -62,22 +62,52 @@ def quantitative_data(network, deployment, frequency, from_unix, to_unix):
             records.dailyGasPrice,
         ])
 
+        df = df.fillna(0)
         df = df.rename(columns=lambda x: x[len("dailySnapshots_"):])
-        for field in config.fields_with_stats:
-            df[field] = df.apply(
+        df = df.rename({
+            'dailyBlocks': 'blocks',
+            'cumulativeUniqueAuthors': 'dailyUniqueAuthors_cumulative',
+            'cumulativeDifficulty': 'dailyDifficulty_cumulative',
+            'cumulativeGasUsed': 'dailyGasUsed_cumulative',
+            'cumulativeBurntFees': 'dailyBurntFees_cumulative',
+            'cumulativeRewards': 'dailyRewards_cumulative',
+            'cumulativeSize': 'dailySize_cumulative',
+            'cumulativeTransactions': 'dailyTransactions_cumulative',
+        }, axis='columns')
+
+        for metric in config.metrics_with_stats:
+            df[metric] = df.apply(
                 lambda x: create_stats_obj(
-                    x[f'daily{field}_count'],
-                    x[f'daily{field}_mean'],
-                    x[f'daily{field}_median'],
-                    x[f'daily{field}_max'],
-                    x[f'daily{field}_min'],
-                    x[f'daily{field}_sum'],
-                    x[f'daily{field}_variance'],
-                    x[f'daily{field}_q1'],
-                    x[f'daily{field}_q3']
+                    x[f'daily{metric}_count'],
+                    x[f'daily{metric}_mean'],
+                    x[f'daily{metric}_max'],
+                    x[f'daily{metric}_min'],
+                    x[f'daily{metric}_sum'],
+                    x[f'daily{metric}_variance'],
+                    x[f'daily{metric}_q1'],
+                    x[f'daily{metric}_q3'],
+                    x[f'daily{metric}_cumulative'] if f'daily{metric}_cumulative' in df.columns else None,
                 ), axis=1
             )
-        df["blocks"] = df['dailyBlocks']
+            df = df.astype({
+                f'daily{metric}_count': 'int',
+                f'daily{metric}_mean': 'float',
+                f'daily{metric}_max': 'float',
+                f'daily{metric}_min': 'float',
+                f'daily{metric}_sum': 'float',
+                f'daily{metric}_variance': 'float',
+                f'daily{metric}_q1': 'float',
+                f'daily{metric}_q3': 'float'
+            })
+        df = df.astype({
+            'dailyUniqueAuthors_cumulative': 'int',
+            'dailyDifficulty_cumulative': 'float',
+            'dailyGasUsed_cumulative': 'float',
+            'dailyBurntFees_cumulative': 'float',
+            'dailyRewards_cumulative': 'float',
+            'dailySize_cumulative': 'float',
+            'dailyTransactions_cumulative': 'float',
+        })
 
     if frequency == 'Hourly':
         records = subgraph.Query.hourlySnapshots(
@@ -116,41 +146,63 @@ def quantitative_data(network, deployment, frequency, from_unix, to_unix):
             records.hourlyGasPrice,
         ])
 
+        df = df.fillna(0)
         df = df.rename(columns=lambda x: x[len("hourlySnapshots_"):])
-        for field in config.fields_with_stats:
-            df[field] = df.apply(
+        df = df.rename({
+            'hourlyBlocks': 'blocks',
+            'cumulativeUniqueAuthors': 'hourlyUniqueAuthors_cumulative',
+            'cumulativeDifficulty': 'hourlyDifficulty_cumulative',
+            'cumulativeGasUsed': 'hourlyGasUsed_cumulative',
+            'cumulativeBurntFees': 'hourlyBurntFees_cumulative',
+            'cumulativeRewards': 'hourlyRewards_cumulative',
+            'cumulativeSize': 'hourlySize_cumulative',
+            'cumulativeTransactions': 'hourlyTransactions_cumulative',
+        }, axis='columns')
+
+        for metric in config.metrics_with_stats:
+            df[metric] = df.apply(
                 lambda x: create_stats_obj(
-                    x[f'hourly{field}_count'],
-                    x[f'hourly{field}_mean'],
-                    x[f'hourly{field}_median'],
-                    x[f'hourly{field}_max'],
-                    x[f'hourly{field}_min'],
-                    x[f'hourly{field}_sum'],
-                    x[f'hourly{field}_variance'],
-                    x[f'hourly{field}_q1'],
-                    x[f'hourly{field}_q3']
+                    x[f'hourly{metric}_count'],
+                    x[f'hourly{metric}_mean'],
+                    x[f'hourly{metric}_max'],
+                    x[f'hourly{metric}_min'],
+                    x[f'hourly{metric}_sum'],
+                    x[f'hourly{metric}_variance'],
+                    x[f'hourly{metric}_q1'],
+                    x[f'hourly{metric}_q3'],
+                    x[f'hourly{metric}_cumulative'] if f'hourly{metric}_cumulative' in df.columns else None,
                 ), axis=1
             )
-        df["blocks"] = df['hourlyBlocks']
+
+            df = df.astype({
+                f'hourly{metric}_count': 'int',
+                f'hourly{metric}_mean': 'float',
+                f'hourly{metric}_max': 'float',
+                f'hourly{metric}_min': 'float',
+                f'hourly{metric}_sum': 'float',
+                f'hourly{metric}_variance': 'float',
+                f'hourly{metric}_q1': 'float',
+                f'hourly{metric}_q3': 'float'
+            })
+        df = df.astype({
+            'hourlyUniqueAuthors_cumulative': 'int',
+            'hourlyDifficulty_cumulative': 'float',
+            'hourlyGasUsed_cumulative': 'float',
+            'hourlyBurntFees_cumulative': 'float',
+            'hourlyRewards_cumulative': 'float',
+            'hourlySize_cumulative': 'float',
+            'hourlyTransactions_cumulative': 'float',
+        })
+    df = df.astype({
+        'blockHeight': 'int',
+        'blocks': 'int',
+        'totalSupply': 'float',
+        'gasPrice': 'float'
+    })
 
     df["network"] = network
     df["timestamp"] = df["timestamp"].apply(
         lambda x: datetime.fromtimestamp(x))
-
-    df = df.fillna(0)
-    df = df.astype({
-        'blockHeight': 'int',
-        'blocks': 'int',
-        'cumulativeUniqueAuthors': 'int',
-        'cumulativeDifficulty': 'float',
-        'cumulativeGasUsed': 'float',
-        'cumulativeBurntFees': 'float',
-        'cumulativeRewards': 'float',
-        'cumulativeSize': 'float',
-        'totalSupply': 'float',
-        'cumulativeTransactions': 'float',
-        'gasPrice': 'float'
-    })
 
     return df
 

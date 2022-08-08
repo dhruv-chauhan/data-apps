@@ -42,7 +42,7 @@ deployments = {
         "https://api.thegraph.com/subgraphs/name/messari/network-near"
 }
 
-fields_without_stats = ["network", "blockHeight", "blocks", "timestamp", "cumulativeUniqueAuthors", "cumulativeDifficulty",
-                        "cumulativeGasUsed", "cumulativeBurntFees", "cumulativeRewards", "cumulativeSize", "totalSupply", "cumulativeTransactions", "gasPrice"]
-fields_with_stats = ["UniqueAuthors", "Difficulty", "GasUsed", "GasLimit", "BurntFees", "Rewards",
-                     "Size", "Chunks", "Supply", "Transactions", "BlockInterval", "BlockInterval", "GasPrice"]
+metrics_without_stats = ["network", "blockHeight",
+                         "blocks", "timestamp", "totalSupply", "gasPrice"]
+metrics_with_stats = ["UniqueAuthors", "Difficulty", "GasUsed", "GasLimit", "BurntFees", "Rewards",
+                      "Size", "Chunks", "Supply", "Transactions", "BlockInterval", "GasPrice"]
