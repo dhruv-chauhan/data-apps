@@ -125,9 +125,7 @@ with st.container():
         map(lambda x: fetchers.quantitative_data(x, config.deployments[x], frequency, from_unix, to_unix), networks), axis=0
     )
 
-st.markdown('---')
-st.subheader('Network Comparison')
-with st.container():
+with st.expander("Metrics"):
     with st.container():
         col1, col2, col3, col4 = st.columns(4)
         with col1:
@@ -161,16 +159,16 @@ with st.container():
             data = data.rename(columns={'blocks': 'blocks_mean'})
 
             charts.plot_bar(data, 'network', 'blocks_mean',
-                            None, {'height': 100*len(data)})
+                            None, {'height': 100*len(data) if len(data) > 1 else 125})
 
     st.markdown('---')
     with st.container():
-        st.markdown('##### Metric Stats')
+        st.markdown('##### Stats')
 
         default_index = config.metrics_with_stats.index(
             f'Transactions')
         metric = st.selectbox(
-            'Select metric',
+            'Metric',
             config.metrics_with_stats,
             index=default_index)
 
@@ -193,7 +191,7 @@ with st.container():
                                            ].groupby('network').max().reset_index()
 
                     charts.plot_bar(data, 'network', f'{prefix}_cumulative', None, {
-                                    'height': 100*len(data)})
+                                    'height': 100*len(data) if len(data) > 1 else 125})
 
         with tab2:
             AgGrid(
@@ -204,7 +202,7 @@ with st.container():
                 theme="streamlit"
             )
 
-            col1, col2 = st.columns([13, 1])
+            col1, col2 = st.columns([12, 1])
             with col2:
                 st.download_button(
                     label="Export as CSV",
@@ -275,7 +273,7 @@ with st.container():
                 theme="streamlit"
             )
 
-            col1, col2 = st.columns([13, 1])
+            col1, col2 = st.columns([12, 1])
             with col2:
                 st.download_button(
                     label="Export as CSV",
@@ -285,16 +283,14 @@ with st.container():
                     mime='text/csv',
                 )
 
-st.markdown('---')
-st.subheader('Source Data')
-with st.container():
+with st.expander("Data"):
     cols = st.multiselect(
-        'Select metrics to show',
+        'Metrics',
         config.metrics_with_stats + config.metrics_without_stats,
         default=['network', 'blockHeight', 'totalSupply', 'gasPrice', 'Size', 'Transactions', 'timestamp'])
 
     stats = st.multiselect(
-        'Select stats to show',
+        'Stats',
         ['count', 'sum', 'mean', 'max', 'min',
             'variance', 'upper_quartile', 'lower_quartile', 'cumulative'],
         default=['count', 'mean'])
@@ -317,7 +313,7 @@ with st.container():
         height=600,
     )
 
-    col1, col2 = st.columns([13, 1])
+    col1, col2 = st.columns([12, 1])
     with col2:
         st.download_button(
             label="Export as CSV",
@@ -348,7 +344,7 @@ with st.container():
         )
 
         cols = st.multiselect(
-            'Select columns to show',
+            'Columns',
             block_df.columns.values,
             default=['network', 'id', 'hash', 'author_id', 'transactionCount', 'size', 'timestamp'])
 
@@ -360,7 +356,7 @@ with st.container():
             theme="streamlit"
         )
 
-        col1, col2 = st.columns([13, 1])
+        col1, col2 = st.columns([12, 1])
         with col2:
             st.download_button(
                 label="Export as CSV",
