@@ -26,7 +26,7 @@ def plot_line(data, on_y, on_x, aggregate):
     st.altair_chart(line, use_container_width=True)
 
 
-def plot_bar(data, on_y, on_x, aggregate):
+def plot_bar(data, on_y, on_x, aggregate, properties={}):
     bar = alt.Chart(data, title=f"{on_y} vs. {on_x}").mark_bar(
         cornerRadiusTopLeft=3,
         cornerRadiusTopRight=3,
@@ -35,6 +35,9 @@ def plot_bar(data, on_y, on_x, aggregate):
         y=alt.Y(on_y, title=on_y),
         color='network',
         tooltip=[on_y, on_x])
+
+    if properties:
+        bar = bar.properties(height=properties['height'])
 
     if aggregate:
         rule = plot_aggregate(aggregate, data, on_y)
@@ -58,3 +61,38 @@ def plot_area(data, on_y, on_x, aggregate):
         return
 
     st.altair_chart(area, use_container_width=True)
+
+
+def plot_box(prefix, data):
+    data['count (normalized)'] = data[f'{prefix}_count'].div(
+        data.groupby(['network'])[f'{prefix}_count'].transform('sum'))
+
+    base = alt.Chart(data).encode(
+        alt.X('timestamp'),
+        color='network'
+    )
+
+    rule = base.mark_rule().encode(
+        alt.Y(f'{prefix}_min', title=None),
+        alt.Y2(f'{prefix}_max', title=None)
+    )
+
+    bar = base.mark_bar(
+        size=10
+    ).encode(
+        alt.Y(f'{prefix}_q1', title=None),
+        alt.Y2(f'{prefix}_q3', title=None),
+        opacity='count (normalized)'
+    )
+
+    tick_mean = alt.Chart(data).mark_tick(
+        color='network',
+        thickness=2,
+        size=10 * 1,
+    ).encode(
+        alt.Y(f'{prefix}_mean', title=None),
+        alt.X('timestamp')
+    )
+
+    st.altair_chart((rule + bar + tick_mean),
+                    use_container_width=True)
