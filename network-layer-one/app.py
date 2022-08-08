@@ -224,26 +224,31 @@ with st.container():
                 ['Bar chart', 'Line chart', 'Area chart']
             )
 
+            aggregators = ['none', 'count', 'sum',
+                           'mean', 'median', 'min', 'max']
+            default_index = aggregators.index('mean')
             aggregate = st.radio(
                 "Mark Aggregator",
-                ('none', 'count', 'sum', 'mean', 'median', 'min', 'max'),
-                index=3,
+                aggregators,
+                index=default_index,
                 horizontal=True
             )
             if aggregate == 'none':
                 aggregate = None
 
         with col2:
+            default_index = cols.index(f'{frequency}Transactions_count')
             metric_on_y = st.selectbox(
                 'Metric on y-axis',
                 cols,
-                index=108
+                index=default_index
             )
         with col3:
+            default_index = cols.index('timestamp')
             metric_on_x = st.selectbox(
                 'Metric on x-axis',
                 cols,
-                index=132
+                index=default_index
             )
 
         tab1, tab2 = st.tabs(["📈 Chart", "🗃 Data"])
