@@ -84,12 +84,12 @@ def plot_box(prefix, data):
     ).interactive()
 
     tick_mean = alt.Chart(data).mark_tick(
-        color='network',
         thickness=2,
         size=10 * 1,
     ).encode(
         alt.Y(f'{prefix}_mean', title=None),
-        alt.X('timestamp')
+        alt.X('timestamp'),
+        color='network'
     )
 
     st.altair_chart((rule + bar + tick_mean),
