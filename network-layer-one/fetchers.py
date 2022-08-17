@@ -1,3 +1,4 @@
+import pandas as pd
 import streamlit as st
 from subgrounds.subgrounds import Subgrounds
 from datetime import datetime
@@ -260,6 +261,39 @@ def block_data(network, deployment, block_range):
         'chunkCount': 'int',
         'transactionCount': 'int',
         'rewards': 'float'
+    })
+
+    return df
+
+
+@st.cache
+def author_data(network, deployment, blocks):
+    df = pd.DataFrame()
+    for block in blocks:
+        subgraph = sg.load_subgraph(deployment)
+        records = subgraph.Query.authors(
+            orderBy=subgraph.Author.cumulativeBlocksCreated,
+            orderDirection='desc',
+            block={'number': block}
+        )
+
+        authors = sg.query_df([
+            records.id,
+            records.cumulativeDifficulty,
+            records.cumulativeBlocksCreated,
+        ])
+        authors = authors.rename(columns=lambda x: x[len("authors_"):])
+
+        authors["height"] = block
+
+        df = pd.concat([df, authors]).reset_index(drop=True)
+
+    df["network"] = network
+
+    df = df.fillna(0)
+    df = df.astype({
+        'cumulativeDifficulty': 'float',
+        'cumulativeBlocksCreated': 'float'
     })
 
     return df

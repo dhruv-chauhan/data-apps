@@ -102,10 +102,10 @@ with st.container():
     with col1:
         frequency = st.selectbox(
             'Select frequency of snapshots',
-            ('Hourly', 'Daily'))
+            ('Daily', 'Hourly'))
 
     date_now = date.today()
-    default_date_min = date_now - timedelta(days=7)
+    default_date_min = date_now - timedelta(days=365)
     with col2:
         from_date = st.date_input(
             "From date", value=default_date_min, max_value=date_now)
@@ -152,7 +152,7 @@ with st.expander("Metrics"):
                           value=row['gasPrice'])
         with col4:
             st.markdown(
-                f'##### Average (mean) Blocks per {frequency.replace("ly", "")}')
+                f'##### {frequency} average (mean) Blocks')
 
             data = quantitative_df[['network', 'blocks']
                                    ].groupby('network').mean().reset_index()
@@ -184,7 +184,7 @@ with st.expander("Metrics"):
         with tab1:
             col1, col2 = st.columns([3, 1])
             with col1:
-                charts.plot_box(prefix, quantitative_df[cols])
+                charts.plot_box(quantitative_df[cols], prefix, 'timestamp', 'count')
             with col2:
                 if f'{prefix}_cumulative' in quantitative_df.columns:
                     data = quantitative_df[['network', f'{prefix}_cumulative']
@@ -365,3 +365,198 @@ with st.expander("Data"):
                 file_name='quantitative_data.csv',
                 mime='text/csv',
             )
+
+
+with st.expander("Nakamoto Coefficients"):
+    with st.container():
+        data = quantitative_df[['blockHeight', 'timestamp']]
+
+        data['monthDay'] = data["timestamp"].apply(lambda x: x.strftime("%d"))
+        blocks = data[data["monthDay"] == '01']["blockHeight"].tolist()
+
+        author_df = pd.concat(
+            map(lambda x: fetchers.author_data(x, config.deployments[x], blocks), networks), axis=0
+        )
+
+        block_timestamp_dict = (
+            data[["blockHeight", "timestamp"]]
+            .set_index("blockHeight")
+            .to_dict()
+        )
+        author_df["timestamp"] = author_df["height"].apply(
+            lambda x: block_timestamp_dict["timestamp"][x]
+        )
+
+        author_df = author_df.set_index(["network", "height", "timestamp", "id"])  # set index as (height, id)
+        author_df = author_df.unstack()  # Move index id to columns
+        author_df = author_df.swaplevel(axis=1).sort_index(axis=1)  # swap & sort column
+        author_df = author_df.diff()  # get diff over time
+        author_df = author_df.xs("cumulativeBlocksCreated", axis=1, level=1)  # grab blocks created
+        author_df = author_df.iloc[1:]  # drop the first one
+
+        tmp_list = []
+        for idx, row in author_df.iterrows():
+            # TODO, drop 0s from row
+            row = row[row > 0]
+
+            author_count = len(row)
+
+            # get stats about block mining
+            blocks_mined_total = row.sum()
+            blocks_mined_median = row.median()
+            blocks_mined_mean = row.mean()
+
+            blocks_mined_max = row.max()
+            blocks_mined_min = row.min()
+
+            blocks_mined_std = row.std()
+
+            blocks_mined_q3 = row.quantile(0.75)
+            blocks_mined_q1 = row.quantile(0.25)
+
+            # Getting realized nakamoto
+            authored = row.sort_values(ascending=False).to_frame(name="authored")
+            authored["authored.cumulative"] = authored["authored"].cumsum()
+            authored["pct"] = authored["authored"] / blocks_mined_total
+            authored["pct.cumulative"] = authored["pct"].cumsum()
+
+            realized_nakamoto = (
+                len(authored[authored["pct.cumulative"] < 0.33]) + 1
+            )
+
+            # NOTE: consider normalizing this to pct so the charts are simplier
+            tmp_dict = {
+                "network": idx[0],
+                "date": idx[2].strftime("%Y-%m-%d"),
+                "author_count": author_count,
+                "nakamoto_realized": realized_nakamoto,
+                "blocksAuthored_sum": blocks_mined_total,
+                "blocksAuthored_mean": blocks_mined_mean,
+                "blocksAuthored_median": blocks_mined_median,
+                "blocksAuthored_max": blocks_mined_max,
+                "blocksAuthored_min": blocks_mined_min,
+                "blocksAuthored_std": blocks_mined_std,
+                "blocksAuthored_upper_quartile": blocks_mined_q3,
+                "blocksAuthored_lower_quartile": blocks_mined_q1,
+            }
+            tmp_list.append(tmp_dict)
+
+        author_stats = pd.DataFrame(tmp_list)
+
+        with st.container():
+            st.markdown('##### Blocks Authored Distribution')
+
+            tab1, tab2 = st.tabs(["📈 Chart", "🗃 Data"])
+            with tab1:
+                # author_stats_fig = charts.plotly_box_plot(
+                #     author_stats.set_index('date'),
+                #     'blocksAuthored',
+                #     mean=False,
+                #     upper=False,
+                #     lower=False
+                # )
+                # st.plotly_chart(author_stats_fig, use_container_width=True)
+
+                charts.plot_box(author_stats, 'blocksAuthored', 'date', 'sum')
+
+            with tab2:
+                AgGrid(
+                    author_stats,
+                    data_return_mode="filtered_and_sorted",
+                    update_mode="no_update",
+                    fit_columns_on_grid_load=True,
+                    theme="streamlit"
+                )
+
+                col1, col2 = st.columns([12, 1])
+                with col2:
+                    st.download_button(
+                        label="Export as CSV",
+                        data=df_to_csv(author_stats),
+                        file_name=f'author_stats.csv',
+                        mime='text/csv',
+                    )
+
+        st.markdown('---')
+        with st.container():
+            st.markdown('##### Custom Charts')
+
+            cols = [
+                "date",
+                "author_count",
+                "nakamoto_realized",
+                "blocksAuthored_sum",
+                "blocksAuthored_mean",
+                "blocksAuthored_median",
+                "blocksAuthored_max",
+                "blocksAuthored_min",
+                "blocksAuthored_std",
+                "blocksAuthored_upper_quartile",
+                "blocksAuthored_lower_quartile",
+            ]
+
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                chart_type = st.selectbox(
+                    'Chart Type',
+                    ['Line chart', 'Bar chart', 'Area chart'],
+                    key='author_stats_chart_type'
+                )
+
+                aggregators = ['none', 'count', 'sum',
+                               'mean', 'median', 'min', 'max']
+                default_index = aggregators.index('none')
+                aggregate = st.radio(
+                    "Mark Aggregator",
+                    aggregators,
+                    index=default_index,
+                    horizontal=True
+                )
+                if aggregate == 'none':
+                    aggregate = None
+
+            with col2:
+                default_index = cols.index('nakamoto_realized')
+                metric_on_y = st.selectbox(
+                    'Metric on y-axis',
+                    cols,
+                    index=default_index
+                )
+            with col3:
+                default_index = cols.index('date')
+                metric_on_x = st.selectbox(
+                    'Metric on x-axis',
+                    cols,
+                    index=default_index
+                )
+
+            tab1, tab2 = st.tabs(["📈 Chart", "🗃 Data"])
+            with tab1:
+                if chart_type == "Line chart":
+                    charts.plot_line(author_stats[['network', metric_on_y,
+                                                   metric_on_x]], metric_on_y, metric_on_x, aggregate)
+                elif chart_type == "Bar chart":
+                    charts.plot_bar(author_stats[['network', metric_on_y,
+                                                  metric_on_x]], metric_on_y, metric_on_x, aggregate)
+                elif chart_type == "Area chart":
+                    charts.plot_area(author_stats[['network', metric_on_y,
+                                                   metric_on_x]], metric_on_y, metric_on_x, aggregate)
+
+            with tab2:
+                AgGrid(
+                    author_stats[['network', metric_on_y, metric_on_x]],
+                    data_return_mode="filtered_and_sorted",
+                    update_mode="no_update",
+                    fit_columns_on_grid_load=True,
+                    theme="streamlit"
+                )
+
+                col1, col2 = st.columns([12, 1])
+                with col2:
+                    st.download_button(
+                        label="Export as CSV",
+                        data=df_to_csv(
+                            author_stats[['network', metric_on_y, metric_on_x]]),
+                        file_name=f'{metric_on_y}_vs_{metric_on_x}.csv',
+                        mime='text/csv',
+                    )
