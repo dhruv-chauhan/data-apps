@@ -3,6 +3,7 @@ import pandas as pd
 from PIL import Image
 import datetime
 import asyncio
+import os
 
 # Local imports
 from network import Network
@@ -82,7 +83,7 @@ rewards_fig = clean_plotly_fig(rewards_fig)
 rewards_fig.update_layout(title='<b>Daily Mean Rewards</b>')
 col2.plotly_chart(rewards_fig, use_container_width=True)
 
-image = Image.open('media/loser.jpeg')
+image = Image.open(os.path.join(os.path.dirname(__file__), 'media/loser.jpeg'))
 col3.image(image, caption='Winners care about decentralization')
 
 # Active authors
