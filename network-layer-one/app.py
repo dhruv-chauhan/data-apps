@@ -105,7 +105,11 @@ with st.container():
             ('Daily', 'Hourly'))
 
     date_now = date.today()
-    default_date_min = date_now - timedelta(days=365)
+    if frequency == 'Daily':
+        default_date_min = date(2021,1,1)
+    elif frequency == 'Hourly':
+        default_date_min = date_now - timedelta(days=120)
+
     with col2:
         from_date = st.date_input(
             "From date", value=default_date_min, max_value=date_now)
@@ -124,6 +128,13 @@ with st.container():
     quantitative_df = pd.concat(
         map(lambda x: fetchers.quantitative_data(x, config.deployments[x], frequency, from_unix, to_unix), networks), axis=0
     )
+
+    if frequency == 'Hourly':
+        nakamoto_df = pd.concat(
+            map(lambda x: fetchers.quantitative_data(x, config.deployments[x], 'Daily', from_unix, to_unix), networks), axis=0
+        )
+    else:
+        nakamoto_df = quantitative_df
 
 with st.expander("Metrics"):
     with st.container():
@@ -369,10 +380,10 @@ with st.expander("Data"):
 
 with st.expander("Nakamoto Coefficients"):
     with st.container():
-        data = quantitative_df[['blockHeight', 'timestamp']]
+        data = nakamoto_df[['blockHeight', 'timestamp']]
 
-        data['monthDay'] = data["timestamp"].apply(lambda x: x.strftime("%d"))
-        blocks = data[data["monthDay"] == '01']["blockHeight"].tolist()
+        data['day'] = data["timestamp"].apply(lambda x: x.strftime("%d"))
+        blocks = data[data["day"] == '01']["blockHeight"].tolist()
 
         author_df = pd.concat(
             map(lambda x: fetchers.author_data(x, config.deployments[x], blocks), networks), axis=0

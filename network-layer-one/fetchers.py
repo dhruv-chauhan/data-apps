@@ -31,7 +31,8 @@ def quantitative_data(network, deployment, frequency, from_unix, to_unix):
             orderBy=subgraph.DailySnapshot.timestamp,
             orderDirection='desc',
             where=[subgraph.DailySnapshot.timestamp >= from_unix,
-                   subgraph.DailySnapshot.timestamp <= to_unix]
+                   subgraph.DailySnapshot.timestamp <= to_unix],
+            first=5000
         )
 
         df = sg.query_df([
@@ -119,7 +120,8 @@ def quantitative_data(network, deployment, frequency, from_unix, to_unix):
             orderBy=subgraph.HourlySnapshot.timestamp,
             orderDirection='desc',
             where=[subgraph.HourlySnapshot.timestamp >= from_unix,
-                   subgraph.HourlySnapshot.timestamp <= to_unix]
+                   subgraph.HourlySnapshot.timestamp <= to_unix],
+            first=5000
         )
 
         df = sg.query_df([
@@ -222,7 +224,8 @@ def block_data(network, deployment, block_range):
         orderBy=subgraph.Block.id,
         orderDirection='desc',
         where=[subgraph.Block.id > block_range['first'],
-               subgraph.Block.id <= block_range['last']]
+               subgraph.Block.id <= block_range['last']],
+        first=5000
     )
 
     df = sg.query_df([
@@ -274,7 +277,8 @@ def author_data(network, deployment, blocks):
         records = subgraph.Query.authors(
             orderBy=subgraph.Author.cumulativeBlocksCreated,
             orderDirection='desc',
-            block={'number': block}
+            block={'number': block},
+            first=5000
         )
 
         authors = sg.query_df([
