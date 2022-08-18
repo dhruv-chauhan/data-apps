@@ -77,7 +77,7 @@ def df_to_csv(df):
 
 
 st.set_page_config(layout="wide")
-st.title("Network Layer-1 Metrics")
+st.title("Network Metrics")
 
 st.markdown('---')
 st.subheader('Schema and Deployments')
