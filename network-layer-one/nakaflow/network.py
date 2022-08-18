@@ -2,7 +2,6 @@ import requests
 import pandas as pd
 from aiohttp import ClientSession
 import asyncio
-import streamlit as st
 import datetime
 
 from messygraphs.subgraph import Subgraph
@@ -102,7 +101,7 @@ class Network(Subgraph):
         df["dailyGasUsed"] = df["dailyGasUsed"].astype(float)
         df["dailyGasLimit"] = df["dailyGasLimit"].astype(float)
         df["dailyRewards"] = df["dailyRewards"].astype(float)
-        st.write(df)
+
         self.daily_snapshots = df
         return df
 
