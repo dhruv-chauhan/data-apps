@@ -60,25 +60,25 @@ col1, col2, col3 = st.columns(3)
 daily_snaps = date_filter_df(nw.daily_snapshots, start_date, end_date)
 col1.dataframe(daily_snaps)
 
-gas_df = daily_snaps[['date', 'dailyMeanGasUsed', 'dailyMeanGasLimit']]
-gas_df['gas.used.pct'] = gas_df['dailyMeanGasUsed'].astype(float) / gas_df['dailyMeanGasLimit'].astype(float)
+gas_df = daily_snaps[['date', 'dailyGasUsed', 'dailyGasLimit']]
+gas_df['gas.used.pct'] = gas_df['dailyGasUsed'].astype(float) / gas_df['dailyGasLimit'].astype(float)
 gas_fig = plotly_lines(gas_df[['date','gas.used.pct']].set_index('date'))
 gas_fig = clean_plotly_fig(gas_fig)
-gas_fig.update_layout(title='<b>Gas Limit / Gas Used</b>')
+gas_fig.update_layout(title='<b>Daily Mean Gas Limit / Daily Mean Gas Used</b>')
 col2.plotly_chart(gas_fig, use_container_width=True)
 
-block_interval_fig = plotly_lines(daily_snaps[['date','dailyMeanBlockInterval']].set_index('date'))
+block_interval_fig = plotly_lines(daily_snaps[['date','dailyBlockInterval']].set_index('date'))
 block_interval_fig = clean_plotly_fig(block_interval_fig)
 block_interval_fig.update_layout(title='<b>Mean Block interval</b>')
 col3.plotly_chart(block_interval_fig, use_container_width=True)
 
 col1, col2, col3 = st.columns(3)
-daa_fig = plotly_lines(daily_snaps[['date','dailyActiveAuthors']].set_index('date'))
+daa_fig = plotly_lines(daily_snaps[['date','dailyUniqueAuthors']].set_index('date'))
 daa_fig = clean_plotly_fig(daa_fig)
-daa_fig.update_layout(title='<b>Daily Active Authors</b>')
+daa_fig.update_layout(title='<b>Daily Mean Unique Authors</b>')
 col1.plotly_chart(daa_fig, use_container_width=True)
 
-rewards_fig = plotly_lines(daily_snaps[['date','dailyMeanRewards']].set_index('date'))
+rewards_fig = plotly_lines(daily_snaps[['date','dailyRewards']].set_index('date'))
 rewards_fig = clean_plotly_fig(rewards_fig)
 rewards_fig.update_layout(title='<b>Daily Mean Rewards</b>')
 col2.plotly_chart(rewards_fig, use_container_width=True)

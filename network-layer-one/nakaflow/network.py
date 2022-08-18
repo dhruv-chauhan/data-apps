@@ -2,7 +2,7 @@ import requests
 import pandas as pd
 from aiohttp import ClientSession
 import asyncio
-
+import streamlit as st
 import datetime
 
 from messygraphs.subgraph import Subgraph
@@ -47,28 +47,33 @@ class Network(Subgraph):
                 network {
                   id
                 }
-                cumulativeUniqueAuthors
-                dailyActiveAuthors
                 blockHeight
-                timestamp
                 dailyBlocks
+                timestamp
+                cumulativeUniqueAuthors
                 cumulativeDifficulty
-                dailyCumulativeGasUsed
-                dailyCumulativeGasLimit
-                dailyBlockUtilization
-                dailyMeanGasUsed
-                dailyMeanGasLimit
-                gasPrice
-                dailyBurntFees
+                cumulativeGasUsed
                 cumulativeBurntFees
-                dailyMeanRewards
-                totalSupply
-                dailyMeanBlockInterval
+                cumulativeRewards
                 cumulativeSize
-                dailyCumulativeSize
-                dailyMeanBlockSize
-                dailyTransactionCount
-                firstSupply
+                cumulativeTransactions
+                totalSupply
+                gasPrice
+                dailyGasUsed {
+                    mean
+                }
+                dailyGasLimit {
+                    mean
+                }
+                dailyBlockInterval {
+                    mean
+                }
+                dailyRewards {
+                    mean
+                }
+                dailyUniqueAuthors {
+                    mean
+                }
               }
             }
         """
@@ -84,14 +89,20 @@ class Network(Subgraph):
 
         # unpacking
         df["network"] = df["network"].apply(lambda x: x.get("id"))
+        df["dailyGasUsed"] = df["dailyGasUsed"].apply(lambda x: x.get("mean") if x else None)
+        df["dailyGasLimit"] = df["dailyGasLimit"].apply(lambda x: x.get("mean") if x else None)
+        df["dailyBlockInterval"] = df["dailyBlockInterval"].apply(lambda x: x.get("mean") if x else None)
+        df["dailyRewards"] = df["dailyRewards"].apply(lambda x: x.get("mean") if x else None)
+        df["dailyUniqueAuthors"] = df["dailyUniqueAuthors"].apply(lambda x: x.get("mean") if x else None)
 
         df["datetime"] = pd.to_datetime(df["timestamp"], unit="s")
         df["date"] = df["datetime"].apply(lambda x: x.date())
 
         # Casting
-        df["dailyMeanGasUsed"] = df["dailyMeanGasUsed"].astype(float)
-        df["dailyMeanGasLimit"] = df["dailyMeanGasLimit"].astype(float)
-
+        df["dailyGasUsed"] = df["dailyGasUsed"].astype(float)
+        df["dailyGasLimit"] = df["dailyGasLimit"].astype(float)
+        df["dailyRewards"] = df["dailyRewards"].astype(float)
+        st.write(df)
         self.daily_snapshots = df
         return df
 
