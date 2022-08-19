@@ -20,7 +20,7 @@ deployments = {
         "https://api.thegraph.com/subgraphs/name/messari/network-fuse",
     "Harmony":
         "https://api.thegraph.com/subgraphs/name/messari/network-harmony",
-    "Mainnet":
+    "Ethereum":
     #     "https://api.thegraph.com/subgraphs/name/messari/network-ethereum",
         "https://api.thegraph.com/subgraphs/id/QmVvjZsjsT4RmtQMVj3M8CZ915w9JjjcT6JDRvWfNx21oW",
     "Matic":
