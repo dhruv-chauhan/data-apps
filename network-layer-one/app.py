@@ -310,7 +310,7 @@ with st.expander("Data"):
         st.session_state.show_block_data = False
 
     show_block_data = st.checkbox(
-        'Show individual block data in time range', value=True)
+        'Show individual block data in time range', value=False)
     st.session_state.show_block_data = show_block_data
 
     AgGrid(
