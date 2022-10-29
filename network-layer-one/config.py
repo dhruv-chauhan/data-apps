@@ -20,12 +20,13 @@ deployments = {
         "https://api.thegraph.com/subgraphs/name/messari/network-fuse",
     "Harmony":
         "https://api.thegraph.com/subgraphs/name/messari/network-harmony",
-    # "Mainnet":
-    #     "https://api.thegraph.com/subgraphs/name/messari/network-ethereum",               [OLD SCHEMA]
+    "Ethereum":
+    #     "https://api.thegraph.com/subgraphs/name/messari/network-ethereum",
+        "https://api.thegraph.com/subgraphs/id/QmVvjZsjsT4RmtQMVj3M8CZ915w9JjjcT6JDRvWfNx21oW",
     "Matic":
         "https://api.thegraph.com/subgraphs/name/messari/network-polygon",
-    # "Moonbeam":
-    #     "https://api.thegraph.com/subgraphs/name/messari/network-moonbeam",               [OLD SCHEMA]
+    "Moonbeam":
+        "https://api.thegraph.com/subgraphs/name/messari/network-moonbeam",
     "Moonriver":
         "https://api.thegraph.com/subgraphs/name/messari/network-moonriver",
     "Optimism":
@@ -34,8 +35,9 @@ deployments = {
         "https://api.thegraph.com/subgraphs/name/messari/network-gnosis",
     "Arweave":
         "https://api.thegraph.com/subgraphs/name/messari/network-arweave-mainnet",
-    # "Cosmos":
-    #     "https://api.thegraph.com/subgraphs/name/messari/network-cosmos",                 [OLD SCHEMA]
+    "Cosmos":
+        # "https://api.thegraph.com/subgraphs/name/messari/network-cosmos",
+        "https://api.thegraph.com/subgraphs/id/QmdpnAzcXWNTuZwPwApz2SAz2hDsQVU7xhZRg5jRNPhsdM",
     "Osmosis":
         "https://api.thegraph.com/subgraphs/name/messari/network-osmosis",
     "NEAR":

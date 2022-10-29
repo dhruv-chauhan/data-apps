@@ -1,3 +1,4 @@
+import pandas as pd
 import streamlit as st
 from subgrounds.subgrounds import Subgrounds
 from datetime import datetime
@@ -30,7 +31,8 @@ def quantitative_data(network, deployment, frequency, from_unix, to_unix):
             orderBy=subgraph.DailySnapshot.timestamp,
             orderDirection='desc',
             where=[subgraph.DailySnapshot.timestamp >= from_unix,
-                   subgraph.DailySnapshot.timestamp <= to_unix]
+                   subgraph.DailySnapshot.timestamp <= to_unix],
+            first=5000
         )
 
         df = sg.query_df([
@@ -118,7 +120,8 @@ def quantitative_data(network, deployment, frequency, from_unix, to_unix):
             orderBy=subgraph.HourlySnapshot.timestamp,
             orderDirection='desc',
             where=[subgraph.HourlySnapshot.timestamp >= from_unix,
-                   subgraph.HourlySnapshot.timestamp <= to_unix]
+                   subgraph.HourlySnapshot.timestamp <= to_unix],
+            first=5000
         )
 
         df = sg.query_df([
@@ -221,7 +224,8 @@ def block_data(network, deployment, block_range):
         orderBy=subgraph.Block.id,
         orderDirection='desc',
         where=[subgraph.Block.id > block_range['first'],
-               subgraph.Block.id <= block_range['last']]
+               subgraph.Block.id <= block_range['last']],
+        first=5000
     )
 
     df = sg.query_df([
@@ -260,6 +264,40 @@ def block_data(network, deployment, block_range):
         'chunkCount': 'int',
         'transactionCount': 'int',
         'rewards': 'float'
+    })
+
+    return df
+
+
+@st.cache
+def author_data(network, deployment, blocks):
+    df = pd.DataFrame()
+    for block in blocks:
+        subgraph = sg.load_subgraph(deployment)
+        records = subgraph.Query.authors(
+            orderBy=subgraph.Author.cumulativeBlocksCreated,
+            orderDirection='desc',
+            block={'number': block},
+            first=5000
+        )
+
+        authors = sg.query_df([
+            records.id,
+            records.cumulativeDifficulty,
+            records.cumulativeBlocksCreated,
+        ])
+        authors = authors.rename(columns=lambda x: x[len("authors_"):])
+
+        authors["height"] = block
+
+        df = pd.concat([df, authors]).reset_index(drop=True)
+
+    df["network"] = network
+
+    df = df.fillna(0)
+    df = df.astype({
+        'cumulativeDifficulty': 'float',
+        'cumulativeBlocksCreated': 'float'
     })
 
     return df
