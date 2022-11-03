@@ -1,5 +1,6 @@
 import time
 import asyncio
+import os
 import streamlit as st
 import pandas as pd
 from datetime import date, datetime, timedelta
@@ -19,7 +20,7 @@ header(
     author="Dhruv Chauhan",
 )
 
-helpers.local_css("style.css")
+helpers.local_css(os.path.join(os.path.dirname(__file__), "style.css"))
 
 with st.expander("⚙️ Query Parameters", expanded=False):
     with st.container():
