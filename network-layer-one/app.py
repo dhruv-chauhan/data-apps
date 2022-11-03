@@ -244,34 +244,34 @@ if len(quantitative_df.index) != 0:
                 config.metrics_with_stats,
                 index=default_index)
 
-            # try:
-            prefix = frequency + metric
-            cols = ['network', 'datetime', f'{prefix}_count', f'{prefix}_sum',
-                    f'{prefix}_mean', f'{prefix}_variance',
-                    f'{prefix}_max', f'{prefix}_min',
-                    f'{prefix}_q1', f'{prefix}_q3']
-            if f'{prefix}_cumulative' in quantitative_df.columns:
-                cols.append(f'{prefix}_cumulative')
-
-            data = quantitative_df[cols]
-
-            tab1, tab2 = st.tabs(["📈 Chart", "🗃 Data"])
-            with tab1:
+            try:
+                prefix = frequency + metric
+                cols = ['network', 'datetime', f'{prefix}_count', f'{prefix}_sum',
+                        f'{prefix}_mean', f'{prefix}_variance',
+                        f'{prefix}_max', f'{prefix}_min',
+                        f'{prefix}_q1', f'{prefix}_q3']
                 if f'{prefix}_cumulative' in quantitative_df.columns:
-                    col1, col2 = st.columns([3, 1])
-                    with col1:
-                        charts.plot_box(data, prefix, 'datetime', 'count')
-                    with col2:
-                        charts.plot_bar(
-                            quantitative_df[['network', f'{prefix}_cumulative', 'datetime']], f'{prefix}_cumulative', 'datetime', None)
-                else:
-                    charts.plot_box(data, prefix, 'datetime', 'count')
+                    cols.append(f'{prefix}_cumulative')
 
-            with tab2:
-                helpers.data_grid(data, grid_height=320)
-                helpers.data_download_button(data, prefix)
-            # except:
-            #     st.warning('No Data')
+                data = quantitative_df[cols]
+
+                tab1, tab2 = st.tabs(["📈 Chart", "🗃 Data"])
+                with tab1:
+                    if f'{prefix}_cumulative' in quantitative_df.columns:
+                        col1, col2 = st.columns([3, 1])
+                        with col1:
+                            charts.plot_box(data, prefix, 'datetime', 'count')
+                        with col2:
+                            charts.plot_bar(
+                                quantitative_df[['network', f'{prefix}_cumulative', 'datetime']], f'{prefix}_cumulative', 'datetime', None)
+                    else:
+                        charts.plot_box(data, prefix, 'datetime', 'count')
+
+                with tab2:
+                    helpers.data_grid(data, grid_height=320)
+                    helpers.data_download_button(data, prefix)
+            except:
+                st.warning('No Data')
 
         with st.container():
             st.markdown('---')
