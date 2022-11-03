@@ -2,6 +2,8 @@ schema = "https://github.com/messari/subgraphs/blob/master/subgraphs/network/sch
 deployments = {
     "Arbitrum One":
         "https://api.thegraph.com/subgraphs/name/messari/network-arbitrum",
+    "Arweave":
+        "https://api.thegraph.com/subgraphs/name/messari/network-arweave-mainnet",
     "Aurora":
         "https://api.thegraph.com/subgraphs/name/messari/network-aurora",
     "Avalanche":
@@ -14,37 +16,33 @@ deployments = {
         "https://api.thegraph.com/subgraphs/name/messari/network-celo",
     # "Clover":
     #     "https://api.thegraph.com/subgraphs/name/messari/network-clover",
+    "Cosmos":
+        "https://api.thegraph.com/subgraphs/name/messari/network-cosmos",
+    "Ethereum":
+        "https://api.thegraph.com/subgraphs/name/messari/network-ethereum",
     "Fantom":
         "https://api.thegraph.com/subgraphs/name/messari/network-fantom",
     "Fuse":
         "https://api.thegraph.com/subgraphs/name/messari/network-fuse",
     "Harmony":
         "https://api.thegraph.com/subgraphs/name/messari/network-harmony",
-    "Ethereum":
-    #     "https://api.thegraph.com/subgraphs/name/messari/network-ethereum",
-        "https://api.thegraph.com/subgraphs/id/QmVvjZsjsT4RmtQMVj3M8CZ915w9JjjcT6JDRvWfNx21oW",
     "Matic":
         "https://api.thegraph.com/subgraphs/name/messari/network-polygon",
     "Moonbeam":
         "https://api.thegraph.com/subgraphs/name/messari/network-moonbeam",
     "Moonriver":
         "https://api.thegraph.com/subgraphs/name/messari/network-moonriver",
+    "NEAR":
+        "https://api.thegraph.com/subgraphs/name/messari/network-near",
     "Optimism":
         "https://api.thegraph.com/subgraphs/name/messari/network-optimism",
-    "xDai":
-        "https://api.thegraph.com/subgraphs/name/messari/network-gnosis",
-    "Arweave":
-        "https://api.thegraph.com/subgraphs/name/messari/network-arweave-mainnet",
-    "Cosmos":
-        # "https://api.thegraph.com/subgraphs/name/messari/network-cosmos",
-        "https://api.thegraph.com/subgraphs/id/QmdpnAzcXWNTuZwPwApz2SAz2hDsQVU7xhZRg5jRNPhsdM",
     "Osmosis":
         "https://api.thegraph.com/subgraphs/name/messari/network-osmosis",
-    "NEAR":
-        "https://api.thegraph.com/subgraphs/name/messari/network-near"
+    "xDai":
+        "https://api.thegraph.com/subgraphs/name/messari/network-gnosis"
 }
 
 metrics_without_stats = ["network", "blockHeight",
-                         "blocks", "timestamp", "totalSupply", "gasPrice"]
+                         "blocks", "timestamp", "datetime", "totalSupply", "gasPrice"]
 metrics_with_stats = ["UniqueAuthors", "Difficulty", "GasUsed", "GasLimit", "BurntFees", "Rewards",
                       "Size", "Chunks", "Supply", "Transactions", "BlockInterval", "GasPrice"]

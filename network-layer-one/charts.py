@@ -78,7 +78,7 @@ def plot_box(data, prefix, on_x, opacity_factor):
     )
 
     tooltip = ['network', f'{prefix}_min', f'{prefix}_max',
-               f'{prefix}_lower_quartile', f'{prefix}_upper_quartile', f'{prefix}_mean', f'{prefix}_{opacity_factor}']
+               f'{prefix}_q1', f'{prefix}_q3', f'{prefix}_mean', f'{prefix}_{opacity_factor}']
 
     tick_mean = alt.Chart(data).mark_tick(
         thickness=2,
@@ -119,8 +119,8 @@ def plot_box(data, prefix, on_x, opacity_factor):
     bar = base.mark_bar(
         size=10
     ).encode(
-        alt.Y(f'{prefix}_lower_quartile', title=None),
-        alt.Y2(f'{prefix}_upper_quartile', title=None),
+        alt.Y(f'{prefix}_q1', title=None),
+        alt.Y2(f'{prefix}_q3', title=None),
         opacity=f'{opacity_factor} (normalized)',
         tooltip=tooltip
     ).interactive()
