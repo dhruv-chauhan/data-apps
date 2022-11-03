@@ -362,7 +362,7 @@ async def update_snapshots(network, frequency):
         else:
             res = await get_daily_quantitative_data(session, network)
 
-        file_path = f"snapshots/{res[1]}/{res[0]}.json"
+        file_path = os.path.join(os.path.dirname(__file__), f"snapshots/{res[1]}/{res[0]}.json")
         helpers.write_to_file(file_path, res[2])
 
         return file_path
@@ -371,7 +371,7 @@ async def update_snapshots(network, frequency):
 async def get_snapshots(network, frequency, from_unix, to_unix):
     start_time = time.time()
 
-    file_path = f"snapshots/{frequency}/{network}.json"
+    file_path = os.path.join(os.path.dirname(__file__), f"snapshots/{frequency}/{network}.json")
     if not os.path.isfile(file_path):
         file_path = await update_snapshots(network, frequency)
 
@@ -475,7 +475,7 @@ async def update_snapshots_all_networks():
 
         res = await asyncio.gather(*tasks)
         for r in res:
-            file_path = f"snapshots/{r[1]}/{r[0]}.json"
+            file_path = os.path.join(os.path.dirname(__file__), f"snapshots/{r[1]}/{r[0]}.json")
             helpers.write_to_file(file_path, r[2])
 
         st.session_state['are_snapshots_updated'] = 1
