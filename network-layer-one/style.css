@@ -1,0 +1,14 @@
+div[data-testid="column"] {
+    background-color: transparent;
+    text-align: center;
+    padding: 10px 10px 10px 10px;
+    border: 2px solid grey;
+    border-radius: 5px;
+}
+.stDownloadButton{
+    text-align: right;
+}
+.streamlit-expanderHeader{
+    font-size: 20px;
+    font-weight: 600;
+}
